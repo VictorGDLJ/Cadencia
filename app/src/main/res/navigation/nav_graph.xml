@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/login">
+
+    <fragment
+        android:id="@+id/login"
+        android:name="com.example.cadencia_tfg.Login"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_login_to_pagina_Inicio"
+            app:destination="@id/pagina_Inicio" />
+        <action
+            android:id="@+id/action_login_to_olvidar"
+            app:destination="@id/olvidar" />
+    </fragment>
+    <fragment
+        android:id="@+id/pagina_Inicio"
+        android:name="com.example.cadencia_tfg.Pagina_Inicio"
+        android:label="fragment_pagina__inicio"
+        tools:layout="@layout/fragment_pagina__inicio" />
+    <fragment
+        android:id="@+id/olvidar"
+        android:name="com.example.cadencia_tfg.Olvidar"
+        android:label="fragment_olvidar"
+        tools:layout="@layout/fragment_olvidar" />
+</navigation>

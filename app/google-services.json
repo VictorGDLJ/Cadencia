@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "644824717506",
+    "project_id": "cadencia-c7809",
+    "storage_bucket": "cadencia-c7809.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644824717506:android:89910b321d2536018f435b",
+        "android_client_info": {
+          "package_name": "com.example.cadencia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABfmmEmAnyX5yb3YbHSFnsdeyHy7S56jY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644824717506:android:269f1e2d53e8bc5e8f435b",
+        "android_client_info": {
+          "package_name": "com.example.cadencia_tfg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABfmmEmAnyX5yb3YbHSFnsdeyHy7S56jY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
