@@ -12,7 +12,12 @@
           "package_name": "com.example.cadencia"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "644824717506-n3jveraq7caltch2l1r32009sjhirs5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABfmmEmAnyX5yb3YbHSFnsdeyHy7S56jY"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "644824717506-n3jveraq7caltch2l1r32009sjhirs5v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +41,12 @@
           "package_name": "com.example.cadencia_tfg"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "644824717506-n3jveraq7caltch2l1r32009sjhirs5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABfmmEmAnyX5yb3YbHSFnsdeyHy7S56jY"
@@ -39,7 +54,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "644824717506-n3jveraq7caltch2l1r32009sjhirs5v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

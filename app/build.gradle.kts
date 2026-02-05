@@ -61,6 +61,11 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.firebase:firebase-auth")
-    implementation ("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
+
+    implementation("com.google.android.recaptcha:recaptcha:18.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
 }
