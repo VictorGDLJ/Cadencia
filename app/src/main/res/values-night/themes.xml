@@ -1,7 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.Cadencia_TFG" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <item name="android:colorBackground">#232F3F</item>
+        <item name="android:windowBackground">#232F3F</item>
+
+        <item name="colorSurface">#1E1E1E</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+
+        <item name="colorPrimary">#FF5850</item>
     </style>
+
+    <style name="Theme.Cadencia_TFG" parent="Base.Theme.Cadencia_TFG" />
 </resources>

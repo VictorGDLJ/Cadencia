@@ -12,30 +12,49 @@
         tools:layout="@layout/fragment_login" >
         <action
             android:id="@+id/action_login_to_pagina_Inicio"
-            app:destination="@id/pagina_Inicio" />
+            app:destination="@id/menu_inicio"
+
+            app:popUpTo="@id/login"
+            app:popUpToInclusive="true"/>
+
         <action
             android:id="@+id/action_login_to_olvidar"
             app:destination="@id/olvidar" />
     </fragment>
+
     <fragment
-        android:id="@+id/pagina_Inicio"
+        android:id="@+id/menu_inicio"
         android:name="com.example.cadencia_tfg.ui.Pagina_Inicio"
         android:label="fragment_pagina__inicio"
         tools:layout="@layout/fragment_pagina__inicio" >
         <action
             android:id="@+id/action_pagina_Inicio_to_fragment_nuevo_habito"
             app:destination="@id/fragment_nuevo_habito" />
+        <action
+            android:id="@+id/action_pagina_Inicio_to_menu_perfil"
+            app:destination="@id/menu_perfil" />
     </fragment>
+
     <fragment
         android:id="@+id/olvidar"
         android:name="com.example.cadencia_tfg.ui.detalle.Olvidar"
         android:label="fragment_olvidar"
         tools:layout="@layout/fragment_olvidar" />
+
     <fragment
         android:id="@+id/fragment_nuevo_habito"
         android:name="com.example.cadencia_tfg.ui.detalle.NuevoHabitoFragment"
-
         android:label="fragment_nuevo_habito"
         tools:layout="@layout/fragment_nuevo_habito" />
+
+    <fragment
+        android:id="@+id/menu_perfil"
+        android:name="com.example.cadencia_tfg.ui.perfil.PerfilFragment"
+        android:label="Perfil"
+        tools:layout="@layout/fragment_perfil" >
+        <action
+            android:id="@+id/action_menu_perfil_to_pagina_Inicio2"
+            app:destination="@id/menu_inicio" />
+    </fragment>
 
 </navigation>

@@ -10,16 +10,19 @@ class HabitoViewModel : ViewModel() {
 
     private val repository = HabitoRepository()
 
-    // LiveData para comunicar mensajes (éxito o error) a la vista
     private val _mensaje = MutableLiveData<String>()
     val mensaje: LiveData<String> = _mensaje
 
-    // LiveData para la lista de hábitos (cuando los carguemos en el calendario)
     private val _listaHabitos = MutableLiveData<List<Habito>>()
     val listaHabitos: LiveData<List<Habito>> = _listaHabitos
 
+    init {
+        cargarHabitos()
+    }
+    // --------------------------------
+
     /**
-     * Función actualizada para crear hábitos con fechas y duración
+     * Función para crear hábitos
      */
     fun crearHabito(
         nombre: String,
@@ -29,7 +32,6 @@ class HabitoViewModel : ViewModel() {
         fechaInicio: Long,
         fechaFin: Long
     ) {
-        // Creamos el objeto Habito con TODOS los nuevos campos
         val nuevoHabito = Habito(
             nombre = nombre,
             descripcion = descripcion,
@@ -40,11 +42,9 @@ class HabitoViewModel : ViewModel() {
             fechaCreacion = System.currentTimeMillis()
         )
 
-        // Llamamos al repositorio para guardar en Firebase
         repository.guardarHabito(nuevoHabito,
             onSuccess = {
                 _mensaje.value = "Hábito guardado correctamente"
-                // Opcional: Recargar la lista si estuviéramos en la pantalla de lista
             },
             onFailure = { error ->
                 _mensaje.value = "Error al guardar: ${error.message}"
@@ -52,7 +52,9 @@ class HabitoViewModel : ViewModel() {
         )
     }
 
-
+    /**
+     * Función que activa la escucha en tiempo real (Offline first)
+     */
     fun cargarHabitos() {
         repository.obtenerHabitos { habitos ->
             _listaHabitos.value = habitos
