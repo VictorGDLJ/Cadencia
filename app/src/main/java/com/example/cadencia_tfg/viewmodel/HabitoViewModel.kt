@@ -42,7 +42,8 @@ class HabitoViewModel : ViewModel() {
             fechaCreacion = System.currentTimeMillis()
         )
 
-        repository.guardarHabito(nuevoHabito,
+        repository.guardarHabito(
+            nuevoHabito,
             onSuccess = {
                 _mensaje.value = "Hábito guardado correctamente"
             },

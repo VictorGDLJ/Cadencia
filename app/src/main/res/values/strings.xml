@@ -1,4 +1,49 @@
 <resources>
     <string name="app_name">Cadencia</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="cargando">cargando...</string>
+    <string name="id_usuario_placeholder">ID: ...</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_contrasena">Contraseña</string>
+    <string name="hint_correo_electronico">Correo electrónico</string>
+    <string name="hint_inicio">Inicio</string>
+    <string name="hint_fin">Fin</string>
+
+    <string name="olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="btn_login">login</string>
+    <string name="btn_registrarse">REGISTRARSE</string>
+
+    <string name="titulo_recuperar_contrasena">Recuperar Contraseña</string>
+    <string name="instrucciones_recuperar_contrasena">Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="btn_enviar_correo">Enviar Correo</string>
+    <string name="btn_volver_login">Volver al Login</string>
+
+    <string name="titulo_perfil">Mi Perfil</string>
+    <string name="btn_cerrar_sesion">Cerrar Sesión</string>
+    <string name="usuario_invitado">Invitado</string>
+
+    <string name="menu_inicio">Inicio</string>
+    <string name="menu_estadisticas">Estadísticas</string>
+    <string name="menu_perfil">Perfil</string>
+    <string name="accion_anadir_habito">Añadir Hábito</string>
+
+    <string name="habitos_del_dia">Hábitos del día:</string>
+    <string name="selecciona_dia_habitos">Selecciona un día para ver qué te toca hacer.</string>
+
+    <string name="titulo_nuevo_habito">Nuevo Hábito</string>
+    <string name="hint_nombre_habito">Nombre del hábito (ej. Leer)</string>
+    <string name="hint_descripcion_breve">Descripción breve</string>
+    <string name="label_selecciona_dias">Selecciona los días:</string>
+
+    <string name="dia_l">L</string>
+    <string name="dia_m">M</string>
+    <string name="dia_x">X</string>
+    <string name="dia_j">J</string>
+    <string name="dia_v">V</string>
+    <string name="dia_s">S</string>
+    <string name="dia_d">D</string>
+
+    <string name="switch_duracion_indefinida">Duración Indefinida</string>
+    <string name="btn_guardar_habito">Guardar Hábito</string>
+    <string name="FotoPerfil">FotoPerfil</string>
 </resources>

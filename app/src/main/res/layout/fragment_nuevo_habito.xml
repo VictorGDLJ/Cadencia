@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +9,7 @@
         android:id="@+id/tvTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nuevo Hábito"
+        android:text="@string/titulo_nuevo_habito"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,77 +19,83 @@
         android:id="@+id/etNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre del hábito (ej. Leer)"
         android:layout_marginTop="24dp"
+        android:hint="@string/hint_nombre_habito"
         app:layout_constraintTop_toBottomOf="@id/tvTitulo" />
 
     <EditText
         android:id="@+id/etDescripcion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Descripción breve"
         android:layout_marginTop="16dp"
+        android:hint="@string/hint_descripcion_breve"
         app:layout_constraintTop_toBottomOf="@id/etNombre" />
 
     <TextView
         android:id="@+id/tvLabelDias"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Selecciona los días:"
         android:layout_marginTop="24dp"
+        android:text="@string/label_selecciona_dias"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etDescripcion"/>
+        app:layout_constraintTop_toBottomOf="@id/etDescripcion" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroupDias"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:singleSelection="false"
-        app:layout_constraintTop_toBottomOf="@id/tvLabelDias">
+        app:layout_constraintTop_toBottomOf="@id/tvLabelDias"
+        app:singleSelection="false">
 
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="L"
-            android:tag="Lunes"/>
+            android:tag="Lunes"
+            android:text="@string/dia_l" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="M"
-            android:tag="Martes"/>
+            android:tag="Martes"
+            android:text="@string/dia_m" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="X"
-            android:tag="Miercoles"/>
+            android:tag="Miercoles"
+            android:text="@string/dia_x" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="J"
-            android:tag="Jueves"/>
+            android:tag="Jueves"
+            android:text="@string/dia_j" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="V"
-            android:tag="Viernes"/>
+            android:tag="Viernes"
+            android:text="@string/dia_v" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="S"
-            android:tag="Sabado"/>
+            android:tag="Sabado"
+            android:text="@string/dia_s" />
+
         <com.google.android.material.chip.Chip
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="D"
-            android:tag="Domingo"/>
+            android:tag="Domingo"
+            android:text="@string/dia_d" />
 
     </com.google.android.material.chip.ChipGroup>
 
@@ -99,49 +104,49 @@
         android:id="@+id/switchIndefinido"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Duración Indefinida"
-        android:checked="true"
         android:layout_marginTop="24dp"
+        android:checked="true"
+        android:text="@string/switch_duracion_indefinida"
         app:layout_constraintTop_toBottomOf="@id/chipGroupDias" />
 
     <LinearLayout
         android:id="@+id/layoutFechas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2"
-        android:visibility="gone"
         android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="2"
         app:layout_constraintTop_toBottomOf="@id/switchIndefinido">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:hint="Inicio">
+            android:layout_weight="1"
+            android:hint="@string/hint_inicio">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFechaInicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:clickable="true" />
+                android:clickable="true"
+                android:focusable="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:hint="Fin">
+            android:layout_weight="1"
+            android:hint="@string/hint_fin">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFechaFin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:clickable="true" />
+                android:clickable="true"
+                android:focusable="false" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -149,8 +154,8 @@
         android:id="@+id/btnGuardar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar Hábito"
         android:layout_marginBottom="24dp"
+        android:text="@string/btn_guardar_habito"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
