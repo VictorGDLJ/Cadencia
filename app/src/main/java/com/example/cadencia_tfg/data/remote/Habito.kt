@@ -1,7 +1,7 @@
 package com.example.cadencia_tfg.data.remote
 
 data class Habito(
-    val id: String = "",
+    var id: String = "",
     val userId: String = "",
     val nombre: String = "",
     val descripcion: String = "",
@@ -10,7 +10,8 @@ data class Habito(
     val esIndefinido: Boolean = true,
     val fechaInicio: Long = 0L,
     val fechaFin: Long = 0L,
-    // ---------------------
 
-    val fechaCreacion: Long = System.currentTimeMillis()
+    val fechaCreacion: Long = System.currentTimeMillis(),
+
+    var completado: Boolean = false
 )

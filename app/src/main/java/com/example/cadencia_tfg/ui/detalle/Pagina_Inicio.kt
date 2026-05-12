@@ -19,6 +19,15 @@ import com.example.cadencia_tfg.data.remote.Habito
 import com.example.cadencia_tfg.databinding.FragmentPaginaInicioBinding
 import com.example.cadencia_tfg.viewmodel.HabitoViewModel
 import java.util.Calendar
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
+
+import com.example.cadencia_tfg.BuildConfig
+
+
 
 class Pagina_Inicio : Fragment() {
 
@@ -26,7 +35,40 @@ class Pagina_Inicio : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HabitoViewModel by viewModels()
+
+    private lateinit var adapter: HabitoAdapter
     private var listaCompletaHabitos: List<Habito> = emptyList()
+
+    private var fechaSeleccionadaFormateada: String = ""
+
+    private var habitoPendienteDeVerificar: Habito? = null
+
+    val takePictureLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            Log.d("Camara", "¡Foto capturada con éxito!")
+
+            habitoPendienteDeVerificar?.let { habito ->
+                analizarFotoConIA(bitmap, habito)
+            }
+
+        } else {
+            Log.d("Camara", "Cámara cancelada")
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            takePictureLauncher.launch(null)
+        } else {
+            android.widget.Toast.makeText(requireContext(), "Se necesita la cámara para verificar", android.widget.Toast.LENGTH_SHORT).show()
+            adapter.notifyDataSetChanged()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,55 +83,58 @@ class Pagina_Inicio : Fragment() {
 
         setupMenu()
 
-        // 1. Pedimos los datos al ViewModel
+        binding.rvHabitos.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+
+        adapter = HabitoAdapter(emptyList()) { habitoClickeado ->
+            habitoPendienteDeVerificar = habitoClickeado
+
+            verificarPermisoCamaraYAbrir()
+        }
+        binding.rvHabitos.adapter = adapter
+
         viewModel.cargarHabitos()
 
-        // 2. RECIBIMOS DATOS (Aquí estaba el problema)
         viewModel.listaHabitos.observe(viewLifecycleOwner) { habitosDescargados ->
             listaCompletaHabitos = habitosDescargados
             Log.d("Calendario", "Hábitos recibidos: ${habitosDescargados.size}")
 
-            // --- SOLUCIÓN: FORZAR ACTUALIZACIÓN INICIAL ---
-            // Cogemos la fecha que tiene el calendario seleccionada AHORA MISMO (por defecto es HOY)
             val fechaActualMilis = binding.calendarView.date
 
-            // Calculamos qué día y mes son para pintar el texto
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = fechaActualMilis
             val dia = calendar.get(Calendar.DAY_OF_MONTH)
             val mes = calendar.get(Calendar.MONTH)
+            val anio = calendar.get(Calendar.YEAR)
 
-            // Filtramos los hábitos para esa fecha
             val habitosDeHoy = obtenerHabitosParaElDia(fechaActualMilis, listaCompletaHabitos)
 
-            // Actualizamos la pantalla sin esperar a clics
-            actualizarPantalla(habitosDeHoy, dia, mes)
+            actualizarPantalla(habitosDeHoy, dia, mes, anio)
         }
 
-        // 3. CUANDO EL USUARIO TOCA UN DÍA
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            // Preparamos la fecha seleccionada (final del día para asegurar comparaciones)
             val calendar = Calendar.getInstance()
             calendar.set(year, month, dayOfMonth, 23, 59, 59)
             val fechaSeleccionadaMilis = calendar.timeInMillis
 
-            // Filtramos y mostramos
-            val habitosDelDia =
-                obtenerHabitosParaElDia(fechaSeleccionadaMilis, listaCompletaHabitos)
-            actualizarPantalla(habitosDelDia, dayOfMonth, month)
+            val habitosDelDia = obtenerHabitosParaElDia(fechaSeleccionadaMilis, listaCompletaHabitos)
+
+            actualizarPantalla(habitosDelDia, dayOfMonth, month, year)
         }
     }
 
-    private fun actualizarPantalla(habitos: List<Habito>, dia: Int, mes: Int) {
+    private fun actualizarPantalla(habitos: List<Habito>, dia: Int, mes: Int, anio: Int) {
+        val fechaFormateada = "$anio-${mes + 1}-$dia"
+
+        fechaSeleccionadaFormateada = fechaFormateada
         if (habitos.isEmpty()) {
-            binding.tvListaHabitos.text = "Nada planeado para el $dia/${mes + 1}."
+            binding.tvEstadoVacio.text = "Nada planeado para el $dia/${mes + 1}."
+            binding.tvEstadoVacio.visibility = android.view.View.VISIBLE
+            binding.rvHabitos.visibility = android.view.View.GONE
         } else {
-            val texto = StringBuilder()
-            texto.append("Hábitos para el $dia/${mes + 1}:\n\n")
-            for (habito in habitos) {
-                texto.append("✅ ${habito.nombre}\n")
-            }
-            binding.tvListaHabitos.text = texto.toString()
+            binding.tvEstadoVacio.visibility = android.view.View.GONE
+            binding.rvHabitos.visibility = android.view.View.VISIBLE
+
+            adapter.actualizarLista(habitos, fechaFormateada)
         }
     }
 
@@ -102,21 +147,17 @@ class Pagina_Inicio : Fragment() {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = fechaSeleccionadaMilis
 
-        // Obtenemos la letra del día (L, M, X...)
         val diaSemanaLetra = obtenerLetraDia(calendar.get(Calendar.DAY_OF_WEEK))
 
         for (habito in listaTodos) {
-            // Pasamos a mayúsculas para evitar errores (l vs L)
             val diasDelHabito = habito.diasFrecuencia.map { it.uppercase() }
 
             if (diasDelHabito.contains(diaSemanaLetra)) {
                 if (habito.esIndefinido) {
-                    // Si es indefinido, solo importa que la fecha sea posterior al inicio
                     if (fechaSeleccionadaMilis >= habito.fechaInicio) {
                         resultado.add(habito)
                     }
                 } else {
-                    // Si tiene fin, debe estar dentro del rango
                     if (fechaSeleccionadaMilis >= habito.fechaInicio && fechaSeleccionadaMilis <= habito.fechaFin) {
                         resultado.add(habito)
                     }
@@ -155,15 +196,89 @@ class Pagina_Inicio : Fragment() {
                         }
                         true
                     }
-
                     else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
+
+    private fun verificarPermisoCamaraYAbrir() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.CAMERA
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+
+            takePictureLauncher.launch(null)
+
+        } else {
+            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun analizarFotoConIA(bitmap: android.graphics.Bitmap, habito: Habito) {
+        android.widget.Toast.makeText(requireContext(), "Iniciando análisis (v2.0)...", android.widget.Toast.LENGTH_SHORT).show()
+
+        val requestOptions = com.google.ai.client.generativeai.type.RequestOptions(
+            apiVersion = "v1beta"
+        )
+
+        val generativeModel = com.google.ai.client.generativeai.GenerativeModel(
+            modelName = "gemini-flash-latest",
+            apiKey = com.example.cadencia_tfg.BuildConfig.GEMINI_API_KEY,
+            requestOptions = requestOptions
+        )
+
+        lifecycleScope.launch {
+            try {
+                val prompt = """Eres un verificador automático de hábitos.
+    Analiza esta imagen y responde ÚNICAMENTE con la palabra "SI" o la palabra "NO".
+    ¿Hay pruebas visuales claras en esta foto de que se está cumpliendo el hábito: '${habito.nombre}'?
+    No añadas ninguna explicación ni ninguna otra palabra.
+""".trimIndent()
+                val response = generativeModel.generateContent(
+                    content {
+                        image(bitmap)
+                        text(prompt)
+                    }
+                )
+
+                val respuestaIA = response.text?.trim()?.uppercase() ?: ""
+                Log.d("GeminiIA", "Respuesta: $respuestaIA")
+
+                if (respuestaIA.contains("SI")) {
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val registroRef = db.collection("habitos").document(habito.id)
+                        .collection("registros").document(fechaSeleccionadaFormateada)
+
+                    val datos = hashMapOf(
+                        "completado" to true,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+
+                    registroRef.set(datos).addOnSuccessListener {
+                        android.widget.Toast.makeText(requireContext(), "¡Verificado con éxito!", android.widget.Toast.LENGTH_SHORT).show()
+                        habito.completado = true
+                        adapter.notifyDataSetChanged()
+                    }
+                } else {
+                    android.widget.Toast.makeText(requireContext(), "Hábito no detectado", android.widget.Toast.LENGTH_SHORT).show()
+
+                    habito.completado = false
+
+                    adapter.notifyDataSetChanged()
+                }
+
+            } catch (e: Exception) {
+                Log.e("GeminiIA", "Fallo con modelo 2.0", e)
+                android.widget.Toast.makeText(requireContext(), "Error de conexión", android.widget.Toast.LENGTH_SHORT).show()
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }

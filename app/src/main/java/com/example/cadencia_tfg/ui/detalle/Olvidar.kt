@@ -26,7 +26,6 @@ class Olvidar : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Botón Enviar
         binding.btnRecuperar.setOnClickListener {
             val email = binding.etEmailRecuperacion.text.toString().trim()
 
@@ -37,7 +36,6 @@ class Olvidar : Fragment() {
             }
         }
 
-        // Botón Volver
         binding.btnVolver.setOnClickListener {
             findNavController().popBackStack()
         }

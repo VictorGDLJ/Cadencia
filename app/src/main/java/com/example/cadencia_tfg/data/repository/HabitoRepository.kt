@@ -39,7 +39,15 @@ class HabitoRepository {
                 }
 
                 if (snapshot != null) {
-                    val lista = snapshot.toObjects(Habito::class.java)
+                    val lista = mutableListOf<Habito>()
+                    for (documento in snapshot.documents) {
+                        val habito = documento.toObject(Habito::class.java)
+                        if (habito != null) {
+                            habito.id = documento.id
+                            lista.add(habito)
+                        }
+                    }
+
                     onDatosRecibidos(lista)
 
                     val origen = if (snapshot.metadata.isFromCache) "CACHÉ LOCAL" else "SERVIDOR"

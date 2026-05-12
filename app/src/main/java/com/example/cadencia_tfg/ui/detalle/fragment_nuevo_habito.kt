@@ -17,25 +17,20 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-// He cambiado el nombre de la clase a PascalCase (NuevoHabitoFragment)
-// Es la convención correcta en Kotlin.
 class NuevoHabitoFragment : Fragment() {
 
-    // 1. Configuración del Binding (Para acceder a los elementos visuales)
     private var _binding: FragmentNuevoHabitoBinding? = null
     private val binding get() = _binding!!
 
     private var fechaInicioMilis: Long = System.currentTimeMillis()
     private var fechaFinMilis: Long = 0L
 
-    // 2. Conexión con el ViewModel (El cerebro que guarda los datos)
     private val viewModel: HabitoViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflamos el layout usando Binding
         _binding = FragmentNuevoHabitoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -43,7 +38,6 @@ class NuevoHabitoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 3. Configurar el botón de GUARDAR
         binding.btnGuardar.setOnClickListener {
             guardarHabito()
         }
@@ -56,14 +50,12 @@ class NuevoHabitoFragment : Fragment() {
                 binding.layoutFechas.visibility = View.GONE
             } else {
                 binding.layoutFechas.visibility = View.VISIBLE
-                // Pre-rellenar fecha inicio con hoy si está vacía
                 if (binding.etFechaInicio.text.isNullOrEmpty()) {
                     actualizarInputFecha(binding.etFechaInicio, fechaInicioMilis)
                 }
             }
         }
 
-        // 2. CLICK EN FECHA INICIO
         binding.etFechaInicio.setOnClickListener {
             mostrarDatePicker { timestamp ->
                 fechaInicioMilis = timestamp
@@ -71,7 +63,6 @@ class NuevoHabitoFragment : Fragment() {
             }
         }
 
-        // 3. CLICK EN FECHA FIN
         binding.etFechaFin.setOnClickListener {
             mostrarDatePicker { timestamp ->
                 fechaFinMilis = timestamp
@@ -79,7 +70,6 @@ class NuevoHabitoFragment : Fragment() {
             }
         }
 
-        // 4. GUARDAR
         binding.btnGuardar.setOnClickListener {
             guardarHabito()
         }
@@ -90,15 +80,13 @@ class NuevoHabitoFragment : Fragment() {
         val descripcion = binding.etDescripcion.text.toString()
         val esIndefinido = binding.switchIndefinido.isChecked
 
-        // Días seleccionados (tu código de los Chips)
         val diasSeleccionados = mutableListOf<String>()
         val idsChips = binding.chipGroupDias.checkedChipIds
         for (id in idsChips) {
             val chip = binding.root.findViewById<Chip>(id)
-            diasSeleccionados.add(chip.text.toString()) // Asegúrate de que el texto sea "Lunes", "Martes", etc.
+            diasSeleccionados.add(chip.text.toString())
         }
 
-        // Validaciones
         if (nombre.isEmpty() || diasSeleccionados.isEmpty()) {
             Toast.makeText(context, "Faltan datos", Toast.LENGTH_SHORT).show()
             return
@@ -109,7 +97,6 @@ class NuevoHabitoFragment : Fragment() {
             return
         }
 
-        // ENVIAR AL VIEWMODEL
         viewModel.crearHabito(
             nombre = nombre,
             descripcion = descripcion,

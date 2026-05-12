@@ -21,9 +21,7 @@ class HabitoViewModel : ViewModel() {
     }
     // --------------------------------
 
-    /**
-     * Función para crear hábitos
-     */
+
     fun crearHabito(
         nombre: String,
         descripcion: String,
@@ -53,9 +51,7 @@ class HabitoViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Función que activa la escucha en tiempo real (Offline first)
-     */
+
     fun cargarHabitos() {
         repository.obtenerHabitos { habitos ->
             _listaHabitos.value = habitos

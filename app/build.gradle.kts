@@ -1,10 +1,19 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+
 plugins {
     id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-
 }
 
+val localProperties = Properties()
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val miApiKey = localProperties.getProperty("GEMINI_API_KEY") ?: "API_NO_ENCONTRADA"
 android {
     namespace = "com.example.cadencia_tfg"
     compileSdk = 36
@@ -17,6 +26,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+        buildConfigField("String", "GEMINI_API_KEY", "\"$miApiKey\"")
+
     }
 
     buildTypes {
@@ -37,6 +50,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -50,6 +64,9 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,4 +85,4 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-}
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")}
