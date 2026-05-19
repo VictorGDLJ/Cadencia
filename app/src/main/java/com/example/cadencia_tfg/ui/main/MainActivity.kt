@@ -110,13 +110,16 @@ class MainActivity : AppCompatActivity() {
             android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
         )
 
-        val intervaloMilis = 60 * 1000L
-        val tiempoInicio = System.currentTimeMillis() + intervaloMilis
+        val primeraVezMilis = 60 * 1000L
+
+        val intervaloRepeticionMilis = 60 * 60 * 1000L
+
+        val tiempoInicio = System.currentTimeMillis() + primeraVezMilis
 
         alarmManager.setRepeating(
             android.app.AlarmManager.RTC_WAKEUP,
             tiempoInicio,
-            intervaloMilis,
+            intervaloRepeticionMilis,
             pendingIntent
         )
     }
