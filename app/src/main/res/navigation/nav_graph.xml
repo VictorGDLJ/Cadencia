@@ -49,12 +49,15 @@
 
     <fragment
         android:id="@+id/menu_perfil"
-        android:name="com.example.cadencia_tfg.ui.perfil.PerfilFragment"
+        android:name="com.example.cadencia_tfg.ui.detalle.Perfil"
         android:label="Perfil"
         tools:layout="@layout/fragment_perfil" >
         <action
             android:id="@+id/action_menu_perfil_to_pagina_Inicio2"
             app:destination="@id/menu_inicio" />
+        <action
+            android:id="@+id/action_menu_perfil_to_login"
+            app:destination="@id/login" />
     </fragment>
 
 </navigation>

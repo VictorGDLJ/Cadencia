@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -43,5 +42,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is android.widget.EditText) {
+                val outRect = android.graphics.Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 }

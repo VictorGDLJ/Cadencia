@@ -21,7 +21,6 @@ class HabitoViewModel : ViewModel() {
     }
     // --------------------------------
 
-
     fun crearHabito(
         nombre: String,
         descripcion: String,
@@ -51,10 +50,44 @@ class HabitoViewModel : ViewModel() {
         )
     }
 
-
     fun cargarHabitos() {
         repository.obtenerHabitos { habitos ->
             _listaHabitos.value = habitos
         }
+    }
+
+    // NUEVA FUNCIÓN: Actualizar hábito existente
+    fun actualizarHabito(
+        id: String,
+        nombre: String,
+        descripcion: String,
+        diasFrecuencia: List<String>,
+        esIndefinido: Boolean,
+        fechaInicio: Long,
+        fechaFin: Long
+    ) {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        // Preparamos el paquete con los nuevos datos
+        val datosActualizados = hashMapOf(
+            "nombre" to nombre,
+            "descripcion" to descripcion,
+            "diasFrecuencia" to diasFrecuencia,
+            "esIndefinido" to esIndefinido,
+            "fechaInicio" to fechaInicio,
+            "fechaFin" to fechaFin
+        )
+
+        // Buscamos el ID exacto y machacamos los datos
+        db.collection("habitos").document(id)
+            .update(datosActualizados as Map<String, Any>)
+            .addOnSuccessListener {
+                _mensaje.value = "Hábito actualizado con éxito"
+                // Refrescamos la lista de la pantalla de inicio automáticamente
+                cargarHabitos()
+            }
+            .addOnFailureListener { error ->
+                _mensaje.value = "Error al actualizar: ${error.message}"
+            }
     }
 }

@@ -27,8 +27,6 @@ import com.google.ai.client.generativeai.type.content
 
 import com.example.cadencia_tfg.BuildConfig
 
-
-
 class Pagina_Inicio : Fragment() {
 
     private var _binding: FragmentPaginaInicioBinding? = null
@@ -39,6 +37,9 @@ class Pagina_Inicio : Fragment() {
     private lateinit var adapter: HabitoAdapter
     private var listaCompletaHabitos: List<Habito> = emptyList()
 
+    // Nueva variable para controlar los hábitos del día seleccionado y calcular la barra
+    private var habitosActualesEnPantalla: List<Habito> = emptyList()
+
     private var fechaSeleccionadaFormateada: String = ""
 
     private var habitoPendienteDeVerificar: Habito? = null
@@ -48,11 +49,9 @@ class Pagina_Inicio : Fragment() {
     ) { bitmap ->
         if (bitmap != null) {
             Log.d("Camara", "¡Foto capturada con éxito!")
-
             habitoPendienteDeVerificar?.let { habito ->
                 analizarFotoConIA(bitmap, habito)
             }
-
         } else {
             Log.d("Camara", "Cámara cancelada")
             adapter.notifyDataSetChanged()
@@ -81,15 +80,41 @@ class Pagina_Inicio : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(0, insets.top, 0, 0)
+            androidx.core.view.WindowInsetsCompat.CONSUMED
+        }
+
         setupMenu()
 
         binding.rvHabitos.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
 
-        adapter = HabitoAdapter(emptyList()) { habitoClickeado ->
-            habitoPendienteDeVerificar = habitoClickeado
-
-            verificarPermisoCamaraYAbrir()
-        }
+        adapter = HabitoAdapter(
+            listaHabitos = emptyList(),
+            onAbrirCamara = { habitoClickeado ->
+                habitoPendienteDeVerificar = habitoClickeado
+                verificarPermisoCamaraYAbrir()
+            },
+            onEditarHabito = { habitoClickeado ->
+                // Creamos una "mochila" con todos los datos del hábito
+                val bundle = android.os.Bundle().apply {
+                    putString("id", habitoClickeado.id)
+                    putString("nombre", habitoClickeado.nombre)
+                    putString("descripcion", habitoClickeado.descripcion)
+                    putBoolean("esIndefinido", habitoClickeado.esIndefinido)
+                    putLong("fechaInicio", habitoClickeado.fechaInicio)
+                    putLong("fechaFin", habitoClickeado.fechaFin)
+                    putStringArrayList("dias", ArrayList(habitoClickeado.diasFrecuencia))
+                }
+                // Viajamos a la pantalla enviando la mochila
+                try {
+                    findNavController().navigate(R.id.action_pagina_Inicio_to_fragment_nuevo_habito, bundle)
+                } catch (e: Exception) {
+                    android.util.Log.e("Navegacion", "Fallo al navegar a edición: ${e.message}")
+                }
+            }
+        )
         binding.rvHabitos.adapter = adapter
 
         viewModel.cargarHabitos()
@@ -124,17 +149,75 @@ class Pagina_Inicio : Fragment() {
 
     private fun actualizarPantalla(habitos: List<Habito>, dia: Int, mes: Int, anio: Int) {
         val fechaFormateada = "$anio-${mes + 1}-$dia"
-
         fechaSeleccionadaFormateada = fechaFormateada
+
+        habitosActualesEnPantalla = habitos
+
         if (habitos.isEmpty()) {
             binding.tvEstadoVacio.text = "Nada planeado para el $dia/${mes + 1}."
-            binding.tvEstadoVacio.visibility = android.view.View.VISIBLE
-            binding.rvHabitos.visibility = android.view.View.GONE
-        } else {
-            binding.tvEstadoVacio.visibility = android.view.View.GONE
-            binding.rvHabitos.visibility = android.view.View.VISIBLE
+            binding.tvEstadoVacio.visibility = View.VISIBLE
+            binding.rvHabitos.visibility = View.GONE
 
+            actualizarBarraDeProgreso()
+        } else {
+            binding.tvEstadoVacio.visibility = View.GONE
+            binding.rvHabitos.visibility = View.VISIBLE
+
+            // Cargamos la lista inicialmente
             adapter.actualizarLista(habitos, fechaFormateada)
+
+            // Le pedimos a Firebase que nos diga cuáles están completados hoy
+            comprobarHabitosCompletadosEnFirebase(habitos, fechaFormateada)
+        }
+    }
+
+    // NUEVA FUNCIÓN: Pregunta a Firebase por el historial del día
+    private fun comprobarHabitosCompletadosEnFirebase(habitos: List<Habito>, fecha: String) {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        var verificacionesCompletadas = 0
+
+        for (habito in habitos) {
+            db.collection("habitos").document(habito.id)
+                .collection("registros").document(fecha)
+                .get()
+                .addOnSuccessListener { document ->
+                    // Si el documento existe y dice true, el hábito está completado hoy
+                    habito.completado = document.exists() && document.getBoolean("completado") == true
+
+                    verificacionesCompletadas++
+
+                    // Cuando termine de comprobar el último hábito de la lista...
+                    if (verificacionesCompletadas == habitos.size) {
+                        actualizarBarraDeProgreso() // Recalcula el % real
+                        adapter.notifyDataSetChanged() // Refresca los colores/checks en pantalla
+                    }
+                }
+                .addOnFailureListener {
+                    habito.completado = false
+                    verificacionesCompletadas++
+
+                    if (verificacionesCompletadas == habitos.size) {
+                        actualizarBarraDeProgreso()
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+        }
+    }
+
+    private fun actualizarBarraDeProgreso() {
+        if (habitosActualesEnPantalla.isEmpty()) {
+            binding.pbProgresoDiario.progress = 0
+            return
+        }
+
+        val completados = habitosActualesEnPantalla.count { it.completado }
+        val total = habitosActualesEnPantalla.size
+        val porcentaje = (completados * 100) / total
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            binding.pbProgresoDiario.setProgress(porcentaje, true)
+        } else {
+            binding.pbProgresoDiario.progress = porcentaje
         }
     }
 
@@ -202,15 +285,12 @@ class Pagina_Inicio : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-
     private fun verificarPermisoCamaraYAbrir() {
         if (androidx.core.content.ContextCompat.checkSelfPermission(
                 requireContext(),
                 android.Manifest.permission.CAMERA
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
             takePictureLauncher.launch(null)
-
         } else {
             requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
         }
@@ -258,15 +338,20 @@ class Pagina_Inicio : Fragment() {
 
                     registroRef.set(datos).addOnSuccessListener {
                         android.widget.Toast.makeText(requireContext(), "¡Verificado con éxito!", android.widget.Toast.LENGTH_SHORT).show()
+
+                        // Actualizamos el estado interno del hábito
                         habito.completado = true
                         adapter.notifyDataSetChanged()
+
+                        // RECALCULAMOS LA BARRA AUTOMÁTICAMENTE
+                        actualizarBarraDeProgreso()
                     }
                 } else {
                     android.widget.Toast.makeText(requireContext(), "Hábito no detectado", android.widget.Toast.LENGTH_SHORT).show()
-
                     habito.completado = false
-
                     adapter.notifyDataSetChanged()
+
+                    actualizarBarraDeProgreso()
                 }
 
             } catch (e: Exception) {
@@ -276,9 +361,9 @@ class Pagina_Inicio : Fragment() {
             }
         }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
 }

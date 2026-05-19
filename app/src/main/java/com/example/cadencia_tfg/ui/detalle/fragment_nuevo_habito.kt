@@ -25,6 +25,8 @@ class NuevoHabitoFragment : Fragment() {
     private var fechaInicioMilis: Long = System.currentTimeMillis()
     private var fechaFinMilis: Long = 0L
 
+    private var idHabitoAEditar: String? = null
+
     private val viewModel: HabitoViewModel by viewModels()
 
     override fun onCreateView(
@@ -38,12 +40,7 @@ class NuevoHabitoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnGuardar.setOnClickListener {
-            guardarHabito()
-        }
-
-
-
+        cargarDatosSiEsEdicion()
 
         binding.switchIndefinido.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -75,6 +72,39 @@ class NuevoHabitoFragment : Fragment() {
         }
     }
 
+    private fun cargarDatosSiEsEdicion() {
+        arguments?.let { bundle ->
+            idHabitoAEditar = bundle.getString("id")
+
+            if (idHabitoAEditar != null) {
+                binding.etNombre.setText(bundle.getString("nombre"))
+                binding.etDescripcion.setText(bundle.getString("descripcion"))
+
+                val esIndefinido = bundle.getBoolean("esIndefinido")
+                binding.switchIndefinido.isChecked = esIndefinido
+
+                fechaInicioMilis = bundle.getLong("fechaInicio")
+                actualizarInputFecha(binding.etFechaInicio, fechaInicioMilis)
+
+                if (!esIndefinido) {
+                    fechaFinMilis = bundle.getLong("fechaFin")
+                    actualizarInputFecha(binding.etFechaFin, fechaFinMilis)
+                }
+
+                val dias = bundle.getStringArrayList("dias") ?: arrayListOf()
+                for (i in 0 until binding.chipGroupDias.childCount) {
+                    val chip = binding.chipGroupDias.getChildAt(i) as Chip
+                    if (dias.contains(chip.text.toString().uppercase(Locale.ROOT)) ||
+                        dias.contains(chip.text.toString())) {
+                        chip.isChecked = true
+                    }
+                }
+
+                binding.btnGuardar.text = "Actualizar Hábito"
+            }
+        }
+    }
+
     private fun guardarHabito() {
         val nombre = binding.etNombre.text.toString()
         val descripcion = binding.etDescripcion.text.toString()
@@ -97,14 +127,26 @@ class NuevoHabitoFragment : Fragment() {
             return
         }
 
-        viewModel.crearHabito(
-            nombre = nombre,
-            descripcion = descripcion,
-            diasFrecuencia = diasSeleccionados,
-            esIndefinido = esIndefinido,
-            fechaInicio = fechaInicioMilis,
-            fechaFin = if (esIndefinido) 0L else fechaFinMilis
-        )
+        if (idHabitoAEditar == null) {
+            viewModel.crearHabito(
+                nombre = nombre,
+                descripcion = descripcion,
+                diasFrecuencia = diasSeleccionados,
+                esIndefinido = esIndefinido,
+                fechaInicio = fechaInicioMilis,
+                fechaFin = if (esIndefinido) 0L else fechaFinMilis
+            )
+        } else {
+            viewModel.actualizarHabito(
+                id = idHabitoAEditar!!,
+                nombre = nombre,
+                descripcion = descripcion,
+                diasFrecuencia = diasSeleccionados,
+                esIndefinido = esIndefinido,
+                fechaInicio = fechaInicioMilis,
+                fechaFin = if (esIndefinido) 0L else fechaFinMilis
+            )
+        }
 
         findNavController().popBackStack()
     }

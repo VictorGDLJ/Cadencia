@@ -80,9 +80,15 @@ dependencies {
     implementation ("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
 
+    implementation("com.google.firebase:firebase-storage")
+
     implementation("com.google.android.recaptcha:recaptcha:18.4.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")}
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+}
