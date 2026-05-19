@@ -11,9 +11,9 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.example.cadencia_tfg.databinding.FragmentPerfilBinding
 import androidx.navigation.fragment.findNavController
 import com.example.cadencia_tfg.R
+import com.example.cadencia_tfg.databinding.FragmentPerfilBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 
@@ -24,10 +24,10 @@ class Perfil : Fragment() {
 
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            binding.ivFotoUsuario.setPadding(0, 0, 0, 0)
-            binding.ivFotoUsuario.imageTintList = null
-            binding.ivFotoUsuario.scaleType = ImageView.ScaleType.CENTER_CROP
-            binding.ivFotoUsuario.setImageURI(uri)
+            binding.ivFotoPerfil.setPadding(0, 0, 0, 0)
+            binding.ivFotoPerfil.imageTintList = null
+            binding.ivFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.ivFotoPerfil.setImageURI(uri)
 
             subirFotoAFirebase(uri)
         }
@@ -44,17 +44,18 @@ class Perfil : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.cvFotoPerfil.setOnClickListener {
+        binding.ivFotoPerfil.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         val usuarioActual = FirebaseAuth.getInstance().currentUser
 
         if (usuarioActual != null) {
-            binding.tvUserEmail.text = usuarioActual.email
+            binding.tvEmailUsuario.text = usuarioActual.email
             cargarFotoDesdeFirebase()
+            cargarEstadisticasReales() // Llamamos a las estadísticas
         } else {
-            binding.tvUserEmail.text = "Usuario no invitado"
+            binding.tvEmailUsuario.text = "Usuario no invitado"
         }
 
         binding.btnCerrarSesion.setOnClickListener {
@@ -66,6 +67,55 @@ class Perfil : Fragment() {
                 Log.e("Perfil", "Error al navegar al login: ${e.message}")
             }
         }
+    }
+
+    private fun cargarEstadisticasReales() {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        val calendar = java.util.Calendar.getInstance()
+        val dia = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        val mes = calendar.get(java.util.Calendar.MONTH)
+        val anio = calendar.get(java.util.Calendar.YEAR)
+        val fechaHoy = "$anio-${mes + 1}-$dia"
+
+        db.collection("habitos").get()
+            .addOnSuccessListener { snapshot ->
+                val totalHabitos = snapshot.size()
+                binding.tvTotalHabitos.text = totalHabitos.toString()
+
+                if (totalHabitos == 0) {
+                    binding.tvRacha.text = "0"
+                    return@addOnSuccessListener
+                }
+
+                var completadosHoy = 0
+                var comprobacionesTerminadas = 0
+
+                for (document in snapshot.documents) {
+                    db.collection("habitos").document(document.id)
+                        .collection("registros").document(fechaHoy)
+                        .get()
+                        .addOnSuccessListener { docRegistro ->
+                            if (docRegistro.exists() && docRegistro.getBoolean("completado") == true) {
+                                completadosHoy++
+                            }
+
+                            comprobacionesTerminadas++
+                            if (comprobacionesTerminadas == totalHabitos) {
+                                binding.tvRacha.text = completadosHoy.toString()
+                            }
+                        }
+                        .addOnFailureListener {
+                            comprobacionesTerminadas++
+                            if (comprobacionesTerminadas == totalHabitos) {
+                                binding.tvRacha.text = completadosHoy.toString()
+                            }
+                        }
+                }
+            }
+            .addOnFailureListener {
+                Log.e("Perfil", "No se pudieron cargar las estadísticas", it)
+            }
     }
 
     private fun subirFotoAFirebase(fileUri: Uri) {
@@ -86,27 +136,20 @@ class Perfil : Fragment() {
     }
 
     private fun cargarFotoDesdeFirebase() {
-        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser ?: return
+        val user = FirebaseAuth.getInstance().currentUser ?: return
 
-        // Buscamos la ruta exacta donde guardamos la foto antes
-        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val storageRef = FirebaseStorage.getInstance().reference
             .child("fotosPerfil/${user.uid}.jpg")
 
-        // Pedimos la URL de descarga
         storageRef.downloadUrl.addOnSuccessListener { uri ->
-            // Si la encuentra, usamos Glide para pegarla en el círculo
             com.bumptech.glide.Glide.with(requireContext())
                 .load(uri)
-                .into(binding.ivFotoUsuario)
+                .into(binding.ivFotoPerfil) // Actualizado el ID
 
-            // Ajustamos el diseño igual que cuando la elegimos de la galería
-            binding.ivFotoUsuario.setPadding(0, 0, 0, 0)
-            binding.ivFotoUsuario.imageTintList = null
-            binding.ivFotoUsuario.scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-
+            binding.ivFotoPerfil.setPadding(0, 0, 0, 0)
+            binding.ivFotoPerfil.imageTintList = null
+            binding.ivFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
         }.addOnFailureListener {
-            // Si entra aquí es porque el usuario es nuevo y aún no ha subido ninguna foto.
-            // No hacemos nada y dejamos el icono del calendario por defecto.
             Log.d("Perfil", "El usuario aún no tiene foto de perfil")
         }
     }

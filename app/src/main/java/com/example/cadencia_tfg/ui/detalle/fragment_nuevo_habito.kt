@@ -70,6 +70,21 @@ class NuevoHabitoFragment : Fragment() {
         binding.btnGuardar.setOnClickListener {
             guardarHabito()
         }
+
+        binding.btnEliminar.setOnClickListener {
+            idHabitoAEditar?.let { id ->
+                // Creamos un diálogo de confirmación para que sea más profesional
+                android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("¿Eliminar Hábito?")
+                    .setMessage("¿Estás seguro de que quieres borrar este hábito y todo su progreso?")
+                    .setPositiveButton("Eliminar") { _, _ ->
+                        viewModel.eliminarHabito(id)
+                        findNavController().popBackStack()
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+            }
+        }
     }
 
     private fun cargarDatosSiEsEdicion() {
@@ -85,6 +100,8 @@ class NuevoHabitoFragment : Fragment() {
 
                 fechaInicioMilis = bundle.getLong("fechaInicio")
                 actualizarInputFecha(binding.etFechaInicio, fechaInicioMilis)
+
+                binding.btnEliminar.visibility = View.VISIBLE
 
                 if (!esIndefinido) {
                     fechaFinMilis = bundle.getLong("fechaFin")

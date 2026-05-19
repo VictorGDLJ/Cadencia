@@ -19,7 +19,6 @@ class HabitoViewModel : ViewModel() {
     init {
         cargarHabitos()
     }
-    // --------------------------------
 
     fun crearHabito(
         nombre: String,
@@ -56,7 +55,6 @@ class HabitoViewModel : ViewModel() {
         }
     }
 
-    // NUEVA FUNCIÓN: Actualizar hábito existente
     fun actualizarHabito(
         id: String,
         nombre: String,
@@ -68,7 +66,6 @@ class HabitoViewModel : ViewModel() {
     ) {
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        // Preparamos el paquete con los nuevos datos
         val datosActualizados = hashMapOf(
             "nombre" to nombre,
             "descripcion" to descripcion,
@@ -78,16 +75,28 @@ class HabitoViewModel : ViewModel() {
             "fechaFin" to fechaFin
         )
 
-        // Buscamos el ID exacto y machacamos los datos
         db.collection("habitos").document(id)
             .update(datosActualizados as Map<String, Any>)
             .addOnSuccessListener {
                 _mensaje.value = "Hábito actualizado con éxito"
-                // Refrescamos la lista de la pantalla de inicio automáticamente
                 cargarHabitos()
             }
             .addOnFailureListener { error ->
                 _mensaje.value = "Error al actualizar: ${error.message}"
+            }
+    }
+
+    fun eliminarHabito(id: String) {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        db.collection("habitos").document(id)
+            .delete()
+            .addOnSuccessListener {
+                _mensaje.value = "Hábito eliminado correctamente"
+                cargarHabitos() // Refrescamos la lista para que desaparezca al instante
+            }
+            .addOnFailureListener { error ->
+                _mensaje.value = "Error al eliminar: ${error.message}"
             }
     }
 }

@@ -37,7 +37,6 @@ class Pagina_Inicio : Fragment() {
     private lateinit var adapter: HabitoAdapter
     private var listaCompletaHabitos: List<Habito> = emptyList()
 
-    // Nueva variable para controlar los hábitos del día seleccionado y calcular la barra
     private var habitosActualesEnPantalla: List<Habito> = emptyList()
 
     private var fechaSeleccionadaFormateada: String = ""
@@ -97,7 +96,6 @@ class Pagina_Inicio : Fragment() {
                 verificarPermisoCamaraYAbrir()
             },
             onEditarHabito = { habitoClickeado ->
-                // Creamos una "mochila" con todos los datos del hábito
                 val bundle = android.os.Bundle().apply {
                     putString("id", habitoClickeado.id)
                     putString("nombre", habitoClickeado.nombre)
@@ -107,7 +105,6 @@ class Pagina_Inicio : Fragment() {
                     putLong("fechaFin", habitoClickeado.fechaFin)
                     putStringArrayList("dias", ArrayList(habitoClickeado.diasFrecuencia))
                 }
-                // Viajamos a la pantalla enviando la mochila
                 try {
                     findNavController().navigate(R.id.action_pagina_Inicio_to_fragment_nuevo_habito, bundle)
                 } catch (e: Exception) {
@@ -163,15 +160,12 @@ class Pagina_Inicio : Fragment() {
             binding.tvEstadoVacio.visibility = View.GONE
             binding.rvHabitos.visibility = View.VISIBLE
 
-            // Cargamos la lista inicialmente
             adapter.actualizarLista(habitos, fechaFormateada)
 
-            // Le pedimos a Firebase que nos diga cuáles están completados hoy
             comprobarHabitosCompletadosEnFirebase(habitos, fechaFormateada)
         }
     }
 
-    // NUEVA FUNCIÓN: Pregunta a Firebase por el historial del día
     private fun comprobarHabitosCompletadosEnFirebase(habitos: List<Habito>, fecha: String) {
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
         var verificacionesCompletadas = 0
@@ -181,15 +175,13 @@ class Pagina_Inicio : Fragment() {
                 .collection("registros").document(fecha)
                 .get()
                 .addOnSuccessListener { document ->
-                    // Si el documento existe y dice true, el hábito está completado hoy
                     habito.completado = document.exists() && document.getBoolean("completado") == true
 
                     verificacionesCompletadas++
 
-                    // Cuando termine de comprobar el último hábito de la lista...
                     if (verificacionesCompletadas == habitos.size) {
-                        actualizarBarraDeProgreso() // Recalcula el % real
-                        adapter.notifyDataSetChanged() // Refresca los colores/checks en pantalla
+                        actualizarBarraDeProgreso()
+                        adapter.notifyDataSetChanged()
                     }
                 }
                 .addOnFailureListener {
@@ -339,11 +331,9 @@ class Pagina_Inicio : Fragment() {
                     registroRef.set(datos).addOnSuccessListener {
                         android.widget.Toast.makeText(requireContext(), "¡Verificado con éxito!", android.widget.Toast.LENGTH_SHORT).show()
 
-                        // Actualizamos el estado interno del hábito
                         habito.completado = true
                         adapter.notifyDataSetChanged()
 
-                        // RECALCULAMOS LA BARRA AUTOMÁTICAMENTE
                         actualizarBarraDeProgreso()
                     }
                 } else {
