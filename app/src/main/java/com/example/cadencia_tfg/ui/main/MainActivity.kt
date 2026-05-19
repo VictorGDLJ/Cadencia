@@ -9,12 +9,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.cadencia_tfg.R
 import com.example.cadencia_tfg.databinding.ActivityMainBinding
 import com.example.cadencia_tfg.util.NotificacionReceiver
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -37,9 +39,7 @@ class MainActivity : AppCompatActivity() {
         crearCanalNotificaciones()
         programarRecordatorioRepetitivo()
 
-
         setSupportActionBar(binding.toolbar)
-
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val navHostFragment = supportFragmentManager
@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
 
         binding.bottomNavigation.setOnItemReselectedListener {
-
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -58,14 +57,12 @@ class MainActivity : AppCompatActivity() {
                     binding.toolbar.visibility = View.GONE
                     binding.bottomNavigation.visibility = View.GONE
                 }
-
                 else -> {
                     binding.toolbar.visibility = View.VISIBLE
                     binding.bottomNavigation.visibility = View.VISIBLE
                 }
             }
         }
-
     }
 
     override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
@@ -114,7 +111,6 @@ class MainActivity : AppCompatActivity() {
         )
 
         val intervaloMilis = 60 * 1000L
-
         val tiempoInicio = System.currentTimeMillis() + intervaloMilis
 
         alarmManager.setRepeating(

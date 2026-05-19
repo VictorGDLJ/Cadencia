@@ -93,7 +93,7 @@ class HabitoViewModel : ViewModel() {
             .delete()
             .addOnSuccessListener {
                 _mensaje.value = "Hábito eliminado correctamente"
-                cargarHabitos() // Refrescamos la lista para que desaparezca al instante
+                cargarHabitos()
             }
             .addOnFailureListener { error ->
                 _mensaje.value = "Error al eliminar: ${error.message}"

@@ -46,7 +46,6 @@ class Olvidar : Fragment() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(context, "Correo enviado. Revisa tu bandeja de entrada (y spam).", Toast.LENGTH_LONG).show()
-                    // Volvemos al Login automáticamente para que el usuario inicie sesión
                     findNavController().popBackStack()
                 } else {
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()

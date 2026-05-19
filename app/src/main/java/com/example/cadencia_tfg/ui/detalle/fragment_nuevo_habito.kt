@@ -73,7 +73,6 @@ class NuevoHabitoFragment : Fragment() {
 
         binding.btnEliminar.setOnClickListener {
             idHabitoAEditar?.let { id ->
-                // Creamos un diálogo de confirmación para que sea más profesional
                 android.app.AlertDialog.Builder(requireContext())
                     .setTitle("¿Eliminar Hábito?")
                     .setMessage("¿Estás seguro de que quieres borrar este hábito y todo su progreso?")

@@ -53,7 +53,7 @@ class Perfil : Fragment() {
         if (usuarioActual != null) {
             binding.tvEmailUsuario.text = usuarioActual.email
             cargarFotoDesdeFirebase()
-            cargarEstadisticasReales() // Llamamos a las estadísticas
+            cargarEstadisticasReales()
         } else {
             binding.tvEmailUsuario.text = "Usuario no invitado"
         }
@@ -144,7 +144,7 @@ class Perfil : Fragment() {
         storageRef.downloadUrl.addOnSuccessListener { uri ->
             com.bumptech.glide.Glide.with(requireContext())
                 .load(uri)
-                .into(binding.ivFotoPerfil) // Actualizado el ID
+                .into(binding.ivFotoPerfil)
 
             binding.ivFotoPerfil.setPadding(0, 0, 0, 0)
             binding.ivFotoPerfil.imageTintList = null
