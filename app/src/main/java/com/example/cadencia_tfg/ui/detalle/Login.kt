@@ -98,7 +98,7 @@ class Login : Fragment() {
     private fun inicializarRecaptcha() {
         lifecycleScope.launch {
             try {
-                val siteKey = "6LcwoVssAAAAAClcCLnPuKQCh4CMzNWVu9gx5hVs"
+                val siteKey = "6Let_1ssAAAAALWl9-6EEu6KiHqan5E95PnUPsKQ"
                 Recaptcha.getClient(requireActivity().application, siteKey)
                     .onSuccess { client -> recaptchaClient = client }
             } catch (e: Exception) {
@@ -109,6 +109,8 @@ class Login : Fragment() {
 
     private fun setup(){
         activity?.title = "Autenticación"
+
+
 
         binding.btnGoogle.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
@@ -129,6 +131,10 @@ class Login : Fragment() {
     }
 
     private fun verificarHumanoYRegistrar() {
+
+        Toast.makeText(context, "Verificando seguridad...", Toast.LENGTH_SHORT).show()
+
+
         if (!::recaptchaClient.isInitialized) {
             Toast.makeText(context, "Cargando seguridad...", Toast.LENGTH_SHORT).show()
             return
@@ -138,6 +144,13 @@ class Login : Fragment() {
                 .onSuccess { registrarseEnFirebase() }
                 .onFailure { Toast.makeText(context, "No eres humano.", Toast.LENGTH_SHORT).show() }
         }
+
+
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            registrarseEnFirebase()
+        }, 1000)
+
+
     }
 
     private fun registrarseEnFirebase() {
